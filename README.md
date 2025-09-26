@@ -39,7 +39,7 @@ tclsh jsonparser-list.tcl
 
 ### Using as a Library
 ```tcl
-# Skip built-in tests when sourcing
+# Skip built-in tests when sourcing (or simply delete the test code in bottom half)
 set no_tests 1
 source jsonparser.tcl
 
