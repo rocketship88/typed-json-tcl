@@ -26,33 +26,109 @@ A pure Tcl JSON parser that preserves complete type information, similar to tDOM
 - O(n) key lookups for objects
 - **Best for**: tDOM compatibility, duplicate key preservation, maximum compatibility
 
-## Quick Start
+# Quick Start
 
-### Running Standalone Tests
-```bash
+Both `jsonparser.tcl` and `jsonparser-list.tcl` are organized as runnable Tcl scripts with built-in test suites. This facilitates trying out the code by the simplest method of simply sourcing the file once downloaded.
+
+## File Organization
+
+Each parser file is structured as follows:
+
+```tcl
+# Parser implementation - The complete JSON parsing functionality
+namespace eval typed_json {
+    # ... parser code ...
+}
+
+# Test suite - Wrapped in conditional block
+if {![info exists no_tests]} {
+    # ... test code ...
+}
+```
+
+## Basic Usage - Run and Test
+
+```tcl
 # Test the dict-based version
 tclsh jsonparser.tcl
 
-# Test the list-based version  
+# Test the list-based version
 tclsh jsonparser-list.tcl
 ```
 
-### Using as a Library
+## Interactive Testing
+
 ```tcl
-# Skip built-in tests when sourcing (or simply delete the test code in bottom half)
-set no_tests 1
-source jsonparser.tcl
-
-# Parse JSON with type information preserved
-set data [typed_json::json2dict {{"name": "Alice", "age": 30}}]
-puts $data
-# Output: OBJECT {name {STRING Alice} age {NUMBER 30}}
-
-# Extract values
-puts [typed_json::getValue [typed_json::getPath $data "name"]]
-# Output: Alice
+tclsh
+% set no_tests 1    ;# (if you don't want to run the built in tests)
+% source jsonparser.tcl    ;# or jsonparser-list.tcl
+% set data [typed_json::json2dict {{"name": "Alice", "age": 30}}]
+OBJECT {name {STRING Alice} age {NUMBER 30}}
+% puts [typed_json::getValue [typed_json::getPath $data "name"]]
+Alice
 ```
 
+## Using as a Standard Tcl Package
+
+For integration into the standard Tcl package ecosystem, you can convert either parser into a module or a traditional package:
+
+### Module Installation (.tm file)
+
+1. Rename the desired parser file to include version information:
+   ```bash
+   # For dict-based parser
+   cp jsonparser.tcl typed_json-1.0.tm
+   
+   # For list-based parser  
+   cp jsonparser-list.tcl typed_json_list-1.0.tm
+   ```
+
+2. Remove or comment out the test suite section at the bottom of the file
+
+3. Place the `.tm` file in a directory on Tcl's module path:
+   ```tcl
+   # View system module paths for system-wide installation
+   puts [::tcl::tm::path list]
+   
+   # Or add a user directory if no admin rights
+   ::tcl::tm::path add /path/to/your/modules
+   ```
+
+### Traditional Package Installation
+
+Create a `pkgIndex.tcl` file in the same directory as your chosen parser implementation:
+
+```tcl
+# For dict-based parser
+# pkgIndex.tcl
+package ifneeded typed_json 1.0 [list source [file join $dir jsonparser.tcl]]
+
+# For list-based parser  
+# pkgIndex.tcl
+package ifneeded typed_json_list 1.0 [list source [file join $dir jsonparser-list.tcl]]
+```
+
+Place this directory in a system-wide package location, or if you lack admin rights, add the directory to Tcl's package path at runtime:
+
+```tcl
+# View system package paths for system-wide installation
+puts $auto_path
+
+# Or add a user directory if no admin rights
+lappend auto_path /path/to/your/package/directory
+```
+
+### Usage
+
+Once installed using either method above, the parser can be loaded and used with the standard `package require` command:
+
+```tcl
+package require typed_json
+# or
+package require typed_json_list
+
+set data [typed_json::json2dict {{"name": "Alice", "age": 30}}]
+```
 ## API Reference
 
 ### Main Function
