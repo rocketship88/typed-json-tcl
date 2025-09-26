@@ -1,5 +1,5 @@
 #!/usr/bin/env tclsh
-catch {console show}
+
 # typed_json - JSON Parser with Type Preservation
 # Copyright (c) 2025 et99
 # 
@@ -982,6 +982,7 @@ if {![info exist no_tests]} {
 # Test with various JSON types
 # =============================================================================
 set ::___lg___ [linsert [info global] end ___lg___] ;# skip initial system set of globals, + this one
+catch {console show}
 #Test JSON that shows all type distinctions
 set testJson {{
         "stringproperty": "abc",
@@ -1262,5 +1263,6 @@ proc lg {{pat **} {delimeter |} {max 80}} {          # list globals
     }
 }
 }
+
 
 
