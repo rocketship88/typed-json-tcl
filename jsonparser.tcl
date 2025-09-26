@@ -21,6 +21,7 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+namespace eval typed_json {
 # First, include the flask procedure (from the wiki)
 proc flask {regextokens data {flush yes} {debug no} {indent 3}} {
     set rpos 0
@@ -107,7 +108,7 @@ proc flask {regextokens data {flush yes} {debug no} {indent 3}} {
 # tDOM-style JSON Parser with Value-Based Typing
 # =============================================================================
 
-namespace eval typed_json {
+
     # Namespace variables for options (avoids parameter passing)
     variable convert
     variable maxNesting
@@ -1263,6 +1264,7 @@ proc lg {{pat **} {delimeter |} {max 80}} {          # list globals
     }
 }
 }
+
 
 
 
