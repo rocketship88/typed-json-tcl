@@ -1022,7 +1022,7 @@ if {![info exist no_tests]} {
 # =============================================================================
 # Test with various JSON types
 # =============================================================================
-set ___lg___ set ::___zz___ [linsert [info global] end ___zz___] ;# skip initial system set of globals, + this one
+set ___lg___ [linsert [info global] end ___lg___] ;# skip initial system set of globals, + this one
 
 #Test JSON that shows all type distinctions
 set testJson {{
@@ -1304,4 +1304,5 @@ proc lg {{pat **} {delimeter |} {max 80}} {          # list globals
     }
 }
 }
+
 
