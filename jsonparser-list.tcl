@@ -1,6 +1,5 @@
 #!/usr/bin/env tclsh
 catch {console show}
-set ___lg___ [list tcl_rcFileName tcl_version argv0 argv tcl_interactive tk_library tk_version auto_path errorCode tk_strictMotif errorInfo auto_index env tcl_patchLevel argc tk_patchLevel tcl_libPath tcl_library tcl_platform ___lg___]
 # typed_json - JSON Parser with Type Preservation
 # Copyright (c) 2025 et99
 # 
@@ -1018,11 +1017,12 @@ namespace eval typed_json {
 }
 
 
-
+# safe to remove from here to end when in actual use
 if {![info exist no_tests]} {
 # =============================================================================
 # Test with various JSON types
 # =============================================================================
+set ___lg___ set ::___zz___ [linsert [info global] end ___zz___] ;# skip initial system set of globals, + this one
 
 #Test JSON that shows all type distinctions
 set testJson {{
@@ -1304,3 +1304,4 @@ proc lg {{pat **} {delimeter |} {max 80}} {          # list globals
     }
 }
 }
+
