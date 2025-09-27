@@ -269,3 +269,17 @@ THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH RE
 - [flask - A mini flex/lex procedure](https://wiki.tcl-lang.org/page/flask+a+mini%2Dflex%2Flex+proc) - The lexing framework used by this parser
 - [tDOM](https://wiki.tcl-lang.org/page/tDOM) - High-performance XML/JSON processing with DOM interface
 - [JSON](https://wiki.tcl-lang.org/page/JSON) - Other Tcl JSON parsing solutions
+## Acknowledgements
+
+This typed JSON implementation draws inspiration from the design principles 
+established in tDOM's JSON parser by Rolf Ade and the tDOM development team. 
+tDOM's approach to preserving JSON type information during parsing has been 
+influential in the Tcl community for solving the fundamental challenge of 
+round-trip JSON conversion in Tcl's string-oriented environment.
+
+We thank Rolf Ade for his continued maintenance and development of tDOM, 
+and for pioneering type-preserving JSON parsing patterns that benefit 
+the entire Tcl ecosystem.
+
+**tDOM project:** http://tdom.org  
+**tDOM repository:** http://core.tcl.tk/tdom
