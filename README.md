@@ -66,7 +66,7 @@ The `jsonutilities.tcl` file provides path-based manipulation functions that wor
 ### Path Delimiter Configuration
 The default path delimiter is `"."`. To change it to a single character:
 ```tcl
-namespace eval typed_json {set pathDelimiter "/"}
+namespace eval typed_json {set delimiter "/"}
 # Now use paths like "server/host/primary"
 ```
 
