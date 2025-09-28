@@ -169,7 +169,7 @@ The `jsonutilities.tcl` file provides path-based manipulation functions that wor
 - **`insertJsonIntoArrayAtPath`** - Insert JSON text into arrays
 
 ### Path Delimiter Configuration
-The default path delimiter is `"."`. To change it to a single character:
+The default path delimiter is `"."`. To change it to a different single character (single only - uses split to parse):
 ```tcl
 namespace eval typed_json {set delimiter "/"}
 # Now use paths like "server/host/primary"
