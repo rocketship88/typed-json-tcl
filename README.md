@@ -53,46 +53,7 @@ puts [typed_json::getValue [typed_json::getPath $data "name"]]
 # Output: Alice
 ```
 
-## JSON Utilities (Optional)
 
-The `jsonutilities.tcl` file provides path-based manipulation functions that work with the **dict-based parser only**. These utilities use dot notation  for path navigation (e.g., "server.host.primary"). The utilities also have lower level versions that use typed-json dicts/lists structures. The path versions simply parse the paths and then call the typed-json functions.
-
-### Key Functions
-- **`setObjectByPath`** - Modify existing object values using path notation
-- **`insertIntoArrayAtPath`** - Insert values into arrays at specific indices  
-- **`setJsonObjectByPath`** - Set object values using raw JSON text
-- **`insertJsonIntoArrayAtPath`** - Insert JSON text into arrays
-
-### Path Delimiter Configuration
-The default path delimiter is `"."`. To change it to a single character:
-```tcl
-namespace eval typed_json {set delimiter "/"}
-# Now use paths like "server/host/primary"
-```
-
-### Usage Options
-You can use the utilities in several ways:
-- **Source the file**: `source jsonutilities.tcl`
-- **Copy functions into your code** for customization
-- **Append to your local copy** of `jsonparser.tcl` (if creating a module)
-
-### Example Usage
-```tcl
-# Load both parser and utilities
-set no_tests 1
-source jsonparser.tcl
-source jsonutilities.tcl
-
-# Parse and modify JSON
-set config [typed_json::json2dict $jsonString]
-set newConfig [typed_json::setObjectByPath $config "server.host" {STRING "newhost"}]
-
-# Use JSON text directly
-set result [typed_json::setJsonObjectByPath $config "database.settings" {"timeout": 30}]
-
-# Array manipulation
-set updated [typed_json::insertIntoArrayAtPath $data "users" 0 {STRING "NewUser"}]
-```
 
 ## API Reference
 
@@ -197,7 +158,46 @@ set result [typed_json::convertEscapes "Hello\nWorld\t\"test\""]
 # Unicode (including emoji with surrogate pairs in Tcl 9.0+)
 set result [typed_json::json2dict {{"emoji": "Smile\uD83D\uDE00face"}}]
 ```
+## JSON Utilities (Optional)
 
+The `jsonutilities.tcl` file provides path-based manipulation functions that work with the **dict-based parser only**. These utilities use dot notation  for path navigation (e.g., "server.host.primary"). The utilities also have lower level versions that use typed-json dicts/lists structures. The path versions simply parse the paths and then call the typed-json functions.
+
+### Key Functions
+- **`setObjectByPath`** - Modify existing object values using path notation
+- **`insertIntoArrayAtPath`** - Insert values into arrays at specific indices  
+- **`setJsonObjectByPath`** - Set object values using raw JSON text
+- **`insertJsonIntoArrayAtPath`** - Insert JSON text into arrays
+
+### Path Delimiter Configuration
+The default path delimiter is `"."`. To change it to a single character:
+```tcl
+namespace eval typed_json {set delimiter "/"}
+# Now use paths like "server/host/primary"
+```
+
+### Usage Options
+You can use the utilities in several ways:
+- **Source the file**: `source jsonutilities.tcl`
+- **Copy functions into your code** for customization
+- **Append to your local copy** of `jsonparser.tcl` (if creating a module)
+
+### Example Usage
+```tcl
+# Load both parser and utilities
+set no_tests 1
+source jsonparser.tcl
+source jsonutilities.tcl
+
+# Parse and modify JSON
+set config [typed_json::json2dict $jsonString]
+set newConfig [typed_json::setObjectByPath $config "server.host" {STRING "newhost"}]
+
+# Use JSON text directly
+set result [typed_json::setJsonObjectByPath $config "database.settings" {"timeout": 30}]
+
+# Array manipulation
+set updated [typed_json::insertIntoArrayAtPath $data "users" 0 {STRING "NewUser"}]
+```
 ## Design Philosophy
 
 This parser is intended for simple JSON processing where a pure Tcl solution is desirable, or for educational use demonstrating the flask lexing framework. It provides convenient utility functions for common operations and does not claim to be anywhere near as efficient as tDOM.
