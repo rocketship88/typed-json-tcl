@@ -163,10 +163,10 @@ set result [typed_json::json2dict {{"emoji": "Smile\uD83D\uDE00face"}}]
 The `jsonutilities.tcl` file provides path-based manipulation functions that work with the **dict-based parser only**. These utilities use dot notation  for path navigation (e.g., "server.host.primary"). The utilities also have lower level versions that use typed-json dicts/lists structures. The path versions simply parse the paths and then call the typed-json functions.
 
 ### Key Functions
-- **`setObjectByPath`** - Modify existing object values using path notation
-- **`insertIntoArrayAtPath`** - Insert values into arrays at specific indices  
-- **`setJsonObjectByPath`** - Set object values using raw JSON text
-- **`insertJsonIntoArrayAtPath`** - Insert JSON text into arrays
+- **`setObjectByPath`** - Modify existing object values via path notation and typed-json dict
+- **`setJsonObjectByPath`** - Same but using JSON text
+- **`insertIntoArrayAtPath`** - Insert values into arrays at specific indices via path and typed-json dict 
+- **`insertJsonIntoArrayAtPath`** - Same but using JSON text
 
 ### Path Delimiter Configuration
 The default path delimiter is `"."`. To change it to a different single character (single only - uses split to parse):
