@@ -17,7 +17,7 @@ set testJson {
 # Only run tests if no_insert_tests is not set
 if {![info exists no_insert_tests]} {
 
-if {0} {
+if {1} {
 puts "=== Testing insertIntoArrayAtPath Function ==="
 puts ""
 
