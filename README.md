@@ -55,7 +55,7 @@ puts [typed_json::getValue [typed_json::getPath $data "name"]]
 
 ## JSON Utilities (Optional)
 
-The `jsonutilities.tcl` file provides path-based manipulation functions that work with the **dict-based parser only**. These utilities use dot notation for path navigation (e.g., "server.host.primary").
+The `jsonutilities.tcl` file provides path-based manipulation functions that work with the **dict-based parser only**. These utilities use dot notation  for path navigation (e.g., "server.host.primary"). The utilities also have lower level versions that use typed-json dicts/lists structures. The path versions simply parse the paths and then call the typed-json functions.
 
 ### Key Functions
 - **`setObjectByPath`** - Modify existing object values using path notation
