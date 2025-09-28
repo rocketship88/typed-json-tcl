@@ -26,109 +26,74 @@ A pure Tcl JSON parser that preserves complete type information, similar to tDOM
 - O(n) key lookups for objects
 - **Best for**: tDOM compatibility, duplicate key preservation, maximum compatibility
 
-# Quick Start
+## Quick Start
 
-Both `jsonparser.tcl` and `jsonparser-list.tcl` are organized as runnable Tcl scripts with built-in test suites. This facilitates trying out the code by the simplest method of simply sourcing the file once downloaded.
-
-## File Organization
-
-Each parser file is structured as follows:
-
-```tcl
-# Parser implementation - The complete JSON parsing functionality
-namespace eval typed_json {
-    # ... parser code ...
-}
-
-# Test suite - Wrapped in conditional block
-if {![info exists no_tests]} {
-    # ... test code ...
-}
-```
-
-## Basic Usage - Run and Test
-
-```tcl
+### Running Standalone Tests
+```bash
 # Test the dict-based version
 tclsh jsonparser.tcl
 
-# Test the list-based version
+# Test the list-based version  
 tclsh jsonparser-list.tcl
 ```
 
-## Interactive Testing
-
+### Using as a Library
 ```tcl
-tclsh
-% set no_tests 1    ;# (if you don't want to run the built in tests)
-% source jsonparser.tcl    ;# or jsonparser-list.tcl
-% set data [typed_json::json2dict {{"name": "Alice", "age": 30}}]
-OBJECT {name {STRING Alice} age {NUMBER 30}}
-% puts [typed_json::getValue [typed_json::getPath $data "name"]]
-Alice
-```
+# Skip built-in tests when sourcing
+set no_tests 1
+source jsonparser.tcl
 
-## Using as a Standard Tcl Package
-
-For integration into the standard Tcl package ecosystem, you can convert either parser into a module or a traditional package:
-
-### Module Installation (.tm file)
-
-1. Rename the desired parser file to include version information:
-   ```bash
-   # For dict-based parser
-   cp jsonparser.tcl typed_json-1.0.tm
-   
-   # For list-based parser  
-   cp jsonparser-list.tcl typed_json_list-1.0.tm
-   ```
-
-2. Remove or comment out the test suite section at the bottom of the file
-
-3. Place the `.tm` file in a directory on Tcl's module path:
-   ```tcl
-   # View system module paths for system-wide installation
-   puts [::tcl::tm::path list]
-   
-   # Or add a user directory if no admin rights
-   ::tcl::tm::path add /path/to/your/modules
-   ```
-
-### Traditional Package Installation
-
-Create a `pkgIndex.tcl` file in the same directory as your chosen parser implementation:
-
-```tcl
-# For dict-based parser
-# pkgIndex.tcl
-package ifneeded typed_json 1.0 [list source [file join $dir jsonparser.tcl]]
-
-# For list-based parser  
-# pkgIndex.tcl
-package ifneeded typed_json_list 1.0 [list source [file join $dir jsonparser-list.tcl]]
-```
-
-Place this directory in a system-wide package location, or if you lack admin rights, add the directory to Tcl's package path at runtime:
-
-```tcl
-# View system package paths for system-wide installation
-puts $auto_path
-
-# Or add a user directory if no admin rights
-lappend auto_path /path/to/your/package/directory
-```
-
-### Usage
-
-Once installed using either method above, the parser can be loaded and used with the standard `package require` command:
-
-```tcl
-package require typed_json
-# or
-package require typed_json_list
-
+# Parse JSON with type information preserved
 set data [typed_json::json2dict {{"name": "Alice", "age": 30}}]
+puts $data
+# Output: OBJECT {name {STRING Alice} age {NUMBER 30}}
+
+# Extract values
+puts [typed_json::getValue [typed_json::getPath $data "name"]]
+# Output: Alice
 ```
+
+## JSON Utilities (Optional)
+
+The `jsonutilities.tcl` file provides path-based manipulation functions that work with the **dict-based parser only**. These utilities use dot notation for path navigation (e.g., "server.host.primary").
+
+### Key Functions
+- **`setObjectByPath`** - Modify existing object values using path notation
+- **`insertIntoArrayAtPath`** - Insert values into arrays at specific indices  
+- **`setJsonObjectByPath`** - Set object values using raw JSON text
+- **`insertJsonIntoArrayAtPath`** - Insert JSON text into arrays
+
+### Path Delimiter Configuration
+The default path delimiter is `"."`. To change it to a single character:
+```tcl
+namespace eval typed_json {set pathDelimiter "/"}
+# Now use paths like "server/host/primary"
+```
+
+### Usage Options
+You can use the utilities in several ways:
+- **Source the file**: `source jsonutilities.tcl`
+- **Copy functions into your code** for customization
+- **Append to your local copy** of `jsonparser.tcl` (if creating a module)
+
+### Example Usage
+```tcl
+# Load both parser and utilities
+set no_tests 1
+source jsonparser.tcl
+source jsonutilities.tcl
+
+# Parse and modify JSON
+set config [typed_json::json2dict $jsonString]
+set newConfig [typed_json::setObjectByPath $config "server.host" {STRING "newhost"}]
+
+# Use JSON text directly
+set result [typed_json::setJsonObjectByPath $config "database.settings" {"timeout": 30}]
+
+# Array manipulation
+set updated [typed_json::insertIntoArrayAtPath $data "users" 0 {STRING "NewUser"}]
+```
+
 ## API Reference
 
 ### Main Function
@@ -136,29 +101,31 @@ set data [typed_json::json2dict {{"name": "Alice", "age": 30}}]
 typed_json::json2dict jsonString ?options?
 ```
 
-**Options:**
-- `-convert yes|no` - Convert JSON escapes to Tcl strings (default: yes)
-- `-strict yes|no` - Disable JSON5 comments, enforce RFC 7159 compliance (default: no)
-- `-maxnesting integer` - Maximum nesting depth (default: 2000)
-- `-root name` - Wrap result in root element (default: "")
-- `-surrogate mode` - Handle Unicode surrogate pairs: attempt|error|ignore|replace
-- `-debug yes|no` - Enable tokenizer debug output (default: no)
+### Options
+```
+-convert yes|no         - Convert JSON escapes to Tcl strings (default: yes)
+-strict yes|no          - Disable JSON5 comments, enforce RFC 7159 compliance (default: no)
+-maxnesting integer     - Maximum nesting depth (default: 2000)
+-root name              - Wrap result in root element (default: "")
+-surrogate mode         - Handle Unicode surrogate pairs: attempt|error|ignore|replace
+-debug yes|no           - Enable tokenizer debug output (default: no)
+```
 
 ### Utility Functions
 ```tcl
-typed_json::getValue typedData          # Extract value from typed element
-typed_json::getType typedData           # Get type of element  
-typed_json::isType typedData type       # Check if element matches type
-typed_json::getPath data "key.subkey"   # Navigate using dot notation
-typed_json::findKey data keyName        # Find all occurrences of key
-typed_json::findByType data "STRING"    # Find all values of specific type
-typed_json::getAllKeys data             # Get all key paths recursively
-typed_json::asPlainTcl data             # Convert to plain Tcl dict/list
-typed_json::asJson data                 # Convert back to JSON format
-typed_json::asXml data                  # Convert to XML format
+typed_json::getValue typedData                    # Extract value from typed element
+typed_json::getType typedData                     # Get type of element
+typed_json::isType typedData type                 # Check if element matches type
+typed_json::getPath data "key.subkey"             # Navigate using dot notation
+typed_json::findKey data keyName                  # Find all occurrences of key
+typed_json::findByType data "STRING"              # Find all values of specific type
+typed_json::getAllKeys data                       # Get all key paths recursively
+typed_json::asPlainTcl data                       # Convert to plain Tcl dict/list
+typed_json::asJson data                           # Convert back to JSON format
+typed_json::asXml data                            # Convert to XML format
 ```
 
-## Type System
+## Type Representation
 
 JSON values are represented as typed Tcl structures:
 
@@ -168,14 +135,14 @@ JSON values are represented as typed Tcl structures:
 | `123` | `{NUMBER 123}` |
 | `123.45` | `{NUMBER 123.45}` |
 | `true` | `TRUE` |
-| `false` | `FALSE` |  
+| `false` | `FALSE` |
 | `null` | `NULL` |
 | `{}` | `{OBJECT {...}}` |
 | `[]` | `{ARRAY {...}}` |
 
-## Examples
+## Usage Examples
 
-### Basic Parsing
+### Basic Navigation
 ```tcl
 set json {{"users": ["Alice", "Bob"], "count": 2}}
 set data [typed_json::json2dict $json]
@@ -189,7 +156,7 @@ foreach user $users {
 #         Bob
 ```
 
-### Working with Objects  
+### Key Discovery
 ```tcl
 set data [typed_json::json2dict {{"name": "Alice", "details": {"age": 30, "city": "NYC"}}}]
 
@@ -257,6 +224,15 @@ Implements RFC 7159 with these behaviors:
 - Numbers: Supports integers, floats, and scientific notation
 - Strings: Handles all standard JSON escape sequences
 
+## Acknowledgements
+
+This typed JSON implementation draws inspiration from the design principles established in tDOM's JSON parser by Rolf Ade and the tDOM development team. tDOM's approach to preserving JSON type information during parsing has been influential in the Tcl community for solving the fundamental challenge of round-trip JSON conversion in Tcl's string-oriented environment.
+
+We thank Rolf Ade for his continued maintenance and development of tDOM, and for pioneering type-preserving JSON parsing patterns that benefit the entire Tcl ecosystem.
+
+**tDOM project:** http://tdom.org  
+**tDOM repository:** http://core.tcl.tk/tdom
+
 ## License
 
 Permission to use, copy, modify, and/or distribute this software for any purpose with or without fee is hereby granted.
@@ -269,17 +245,4 @@ THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH RE
 - [flask - A mini flex/lex procedure](https://wiki.tcl-lang.org/page/flask+a+mini%2Dflex%2Flex+proc) - The lexing framework used by this parser
 - [tDOM](https://wiki.tcl-lang.org/page/tDOM) - High-performance XML/JSON processing with DOM interface
 - [JSON](https://wiki.tcl-lang.org/page/JSON) - Other Tcl JSON parsing solutions
-## Acknowledgements
-
-This typed JSON implementation draws inspiration from the design principles 
-established in tDOM's JSON parser by Rolf Ade and the tDOM development team. 
-tDOM's approach to preserving JSON type information during parsing has been 
-influential in the Tcl community for solving the fundamental challenge of 
-round-trip JSON conversion in Tcl's string-oriented environment.
-
-We thank Rolf Ade for his continued maintenance and development of tDOM, 
-and for pioneering type-preserving JSON parsing patterns that benefit 
-the entire Tcl ecosystem.
-
-**tDOM project:** http://tdom.org  
-**tDOM repository:** http://core.tcl.tk/tdom
+- 
