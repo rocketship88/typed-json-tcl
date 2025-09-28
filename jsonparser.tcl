@@ -110,6 +110,7 @@ proc flask {regextokens data {flush yes} {debug no} {indent 3}} {
 
 
     # Namespace variables for options (avoids parameter passing)
+    variable delimiter "."
     variable convert
     variable maxNesting
     variable surrogateMode
@@ -719,7 +720,8 @@ proc flask {regextokens data {flush yes} {debug no} {indent 3}} {
     
     # Navigate to a path like "user.address.street" 
     proc getPath {typedStructure path} {
-        set pathParts [split $path "."]
+    	variable delimiter
+        set pathParts [split $path $delimiter]
         set current $typedStructure
         
         foreach part $pathParts {
@@ -775,12 +777,13 @@ proc flask {regextokens data {flush yes} {debug no} {indent 3}} {
     
     # Get all keys from the structure (recursively)
     proc getAllKeys {typedStructure {prefix ""}} {
+    	variable delimiter
         set keys {}
         lassign $typedStructure rootType rootData
         
         if {$rootType eq "OBJECT"} {
             dict for {key typedValue} $rootData {
-                set fullKey [expr {$prefix eq "" ? $key : "$prefix.$key"}]
+                set fullKey [expr {$prefix eq "" ? $key : "$prefix$delimiter$key"}]
                 lappend keys $fullKey
                 
                 # Recurse into nested objects
@@ -1244,7 +1247,7 @@ if [catch {
 }
 #set ::___lg___ ""
 #Extra lines for easy copy/paste
-proc lg {{pat **} {delimeter |} {max 80}} {          # list globals
+proc lg {{pat **} {delimiter |} {max 80}} {          # list globals
     set a [lsort -dictionary [info global ${pat}*]]
     foreach gvar $a {
         if { $gvar in $::___lg___  && $pat eq "**"} {
@@ -1253,7 +1256,7 @@ proc lg {{pat **} {delimeter |} {max 80}} {          # list globals
         if {[array exists ::$gvar]} { ;# it is an array get some indices
             set val "() [lsort -dictionary [array names ::$gvar]]"
         } elseif { [info exists ::${gvar}] } {
-            set val ${delimeter}[set ::${gvar}]$delimeter
+            set val ${delimiter}[set ::${gvar}]$delimiter
             regsub -all {\n} $val [apply {code {eval set str "\\u[string map "U+ {}" $code]"}} 2936] val ;# or 21B2
         } else {
             continue ;# skip if we cant get the value
