@@ -119,7 +119,7 @@ proc setObjectByPath {typedStructure path newTypedValue {guard "againstExtra"} {
     }
     
     set firstKey [lindex $pathParts 0]
-    set remainingPath [join [lrange $pathParts 1 end] "."]
+    set remainingPath [join [lrange $pathParts 1 end] $delimiter]
     
     if {![dict exists $rootData $firstKey]} {
         error "Path '$fullPath' not found: key '$firstKey' does not exist"
