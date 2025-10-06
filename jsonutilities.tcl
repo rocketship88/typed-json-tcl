@@ -69,16 +69,22 @@ proc validateTypedJson {typedStructure} {
     error "Invalid structure: '$typedStructure' - must be single token or {TYPE data}"
 }
 
-# setObjectByPath function for modifying existing keys in typed JSON object structures
+# setObjectByPath function for modifying or deleting keys in typed JSON object structures
 proc setObjectByPath {typedStructure path newTypedValue {guard "againstExtra"} {fullPath ""}} {
     variable delimiter
+    
     # Guard against incorrect calling sequence
     if {$guard ne "againstExtra"} {
         error "Incorrect setObjectByPath calling sequence - too many arguments provided"
     }
     
-    # Validate the new typed value before proceeding (recursive validation)
-    validateTypedJson $newTypedValue
+    # Check for delete operation (empty list means delete)
+    set isDelete [expr {[llength $newTypedValue] == 0}]
+    
+    # Only validate if not deleting
+    if {!$isDelete} {
+        validateTypedJson $newTypedValue
+    }
     
     # Set fullPath to path if not provided (initial call)
     if {$fullPath eq ""} {
@@ -87,7 +93,7 @@ proc setObjectByPath {typedStructure path newTypedValue {guard "againstExtra"} {
     
     set pathParts [split $path $delimiter]
     
-    # Handle root level assignment
+    # Handle root level assignment/deletion
     if {[llength $pathParts] == 1} {
         lassign $typedStructure rootType rootData
         if {$rootType eq "ARRAY"} {
@@ -95,18 +101,30 @@ proc setObjectByPath {typedStructure path newTypedValue {guard "againstExtra"} {
         } elseif {$rootType ni {OBJECT ARRAY}} {
             error "Path '$fullPath' not found: cannot navigate beyond leaf value of type $rootType"
         }
-        # Check if key exists before setting
-        if {![dict exists $rootData [lindex $pathParts 0]]} {
-            error "Path '$fullPath' not found: key '[lindex $pathParts 0]' does not exist"
-        }
         
-        # No-op optimization: check if value is already what we want
-        set currentValue [dict get $rootData [lindex $pathParts 0]]
-        if {$currentValue eq $newTypedValue} {
-            return $typedStructure  ;# No change needed
-        }
+        set key [lindex $pathParts 0]
         
-        dict set rootData [lindex $pathParts 0] $newTypedValue
+        if {$isDelete} {
+            # Explicitly check if key exists before deleting
+            if {![dict exists $rootData $key]} {
+                error "setObjectByPath: Path '$fullPath' not found: key '$key' does not exist"
+            }
+            dict unset rootData $key
+            
+        } else {
+            # Check if key exists before setting
+            if {![dict exists $rootData $key]} {
+                error "Path '$fullPath' not found: key '$key' does not exist"
+            }
+            
+            # No-op optimization: check if value is already what we want
+            set currentValue [dict get $rootData $key]
+            if {$currentValue eq $newTypedValue} {
+                return $typedStructure  ;# No change needed
+            }
+            
+            dict set rootData $key $newTypedValue
+        }
         return [list "OBJECT" $rootData]
     }
     
@@ -137,7 +155,6 @@ proc setObjectByPath {typedStructure path newTypedValue {guard "againstExtra"} {
     
     return [list "OBJECT" $rootData]
 }
-
 # setJsonObjectByPath function for modifying existing keys with JSON text
 proc setJsonObjectByPath {typedStructure path jsonText} {
     # Parse the JSON text into typed structure
