@@ -228,7 +228,8 @@ proc flask {regextokens data {flush yes} {debug no} {indent 3}} {
             COMMENT_N   {/\*[^*]*\*+(?:[^/*][^*]*\*+)*/} skip     "multi-line comment"
             WS       {[ \t\n\r]+}              skip     "whitespace"
             STRING     {\"([^\"\\\x00-\x1F]|\\.)*\"} token    "quoted string\""
-            LEADING_0  {0\d}  {skip {error "Invalid number with leading zero: '${$}'"}}  "invalid leading zero"            SCIENTIFIC {-?(?:0|[1-9]\d*)(?:\.\d+)?[eE][+-]?\d+} token "scientific notation"
+            LEADING_0  {0\d}  {skip {error "Invalid number with leading zero: '${$}'"}}  "invalid leading zero"
+            SCIENTIFIC {-?(?:0|[1-9]\d*)(?:\.\d+)?[eE][+-]?\d+} token "scientific notation"
             FLOAT    {-?(?:0|[1-9]\d*)\.\d+}    token    "floating point number"
             INTEGER  {-?(?:0|[1-9]\d*)}         token    "integer number"
             LBRACE   {\{}                       token    "left brace - object start"
@@ -1308,6 +1309,7 @@ proc lg {{pat **} {delimiter |} {max 80}} {          # list globals
     }
 }
 }
+
 
 
 
