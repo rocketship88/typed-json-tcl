@@ -110,7 +110,7 @@ proc flask {regextokens data {flush yes} {debug no} {indent 3}} {
 
 
     # Namespace variables for options (avoids parameter passing)
-    variable delimiter
+    variable delimiter "."
     variable convert
     variable maxNesting
     variable surrogateMode
@@ -1309,6 +1309,7 @@ proc lg {{pat **} {delimiter |} {max 80}} {          # list globals
     }
 }
 }
+
 
 
 
